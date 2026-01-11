@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sardina de la patatina</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <nav>
+            <button id="auth-btn" class="auth-btn">Sign In</button>
+            <span id="user-display" class="hidden auth-btn">Guest</span>
+        </nav>
+
+        <header>
+            <h1 class="page-title">Sardina de la patatina</h1>
+            <div id="affirmation-display" class="affirmation">Loading...</div>
+        </header>
+
+        <main>
+            <!-- Home View -->
+            <section id="view-home">
+                <button id="btn-roll" class="big-btn">🎲 Give me something to do</button>
+            </section>
+
+            <!-- Activity View -->
+            <section id="view-activity" class="hidden">
+                <div class="activity-card">
+                    <span id="activity-type" class="activity-type">Type</span>
+                    <h2 id="activity-instruction" class="activity-instruction">Instruction...</h2>
+                    <div class="activity-meta">
+                        <span id="activity-duration">Duration</span>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button id="btn-done" class="secondary-btn">✅ Done</button>
+                    <button id="btn-reroll" class="secondary-btn">🔄 Roll again</button>
+                    <button id="btn-nottoday" class="secondary-btn">🌧️ Not today</button>
+                </div>
+            </section>
+
+            <!-- Upload View (shown after clicking Done) -->
+            <section id="view-upload" class="hidden">
+                <div class="upload-card">
+                    <div class="upload-reminder">
+                        <span class="reminder-label">You completed:</span>
+                        <p id="upload-activity-text" class="reminder-text">Activity instruction here...</p>
+                    </div>
+
+                    <h3>Want to save something?</h3>
+                    <p class="upload-hint">Optional: add a note or upload an image. Or just skip.</p>
+
+                    <textarea id="upload-text" placeholder="Write something (optional)..." rows="3"></textarea>
+
+                    <div class="file-upload-wrapper">
+                        <label for="upload-file" class="file-label">📷 Choose image</label>
+                        <input type="file" id="upload-file" accept="image/*" />
+                        <span id="file-name" class="file-name">No file selected</span>
+                    </div>
+
+                    <div class="upload-actions">
+                        <button id="btn-save" class="secondary-btn">💾 Save & Close</button>
+                        <button id="btn-skip" class="secondary-btn">Skip</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feedback Message -->
+            <div id="feedback-message" class="feedback hidden"></div>
+        </main>
+
+        <!-- Calendar Section -->
+        <section id="calendar-section">
+            <h2 class="calendar-title">Your Activity Log</h2>
+            <div id="calendar-grid" class="calendar-grid">
+                <!-- Entries will be rendered here -->
+                <p class="calendar-empty">Sign in to see your history.</p>
+            </div>
+        </section>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
