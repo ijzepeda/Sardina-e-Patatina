@@ -24,6 +24,7 @@
 <body>
     <div id="app">
         <nav>
+            <button id="install-btn" class="install-btn hidden">📲 Install App</button>
             <button id="auth-btn" class="auth-btn">Sign In</button>
             <span id="user-display" class="hidden auth-btn">Guest</span>
         </nav>
@@ -98,8 +99,35 @@
 
     <script type="module" src="/src/main.js"></script>
 
-    <!-- Service Worker Registration -->
+    <!-- Service Worker & PWA Install -->
     <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+
+        // Capture the install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+
+        // Handle install button click
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log('Install outcome:', outcome);
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+        });
+
+        // Hide button if already installed
+        window.addEventListener('appinstalled', () => {
+            installBtn.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
+        // Register service worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')

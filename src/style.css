@@ -406,6 +406,23 @@ nav {
     color: var(--text-color);
 }
 
+.install-btn {
+    font-size: 0.8rem;
+    color: white;
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    margin-right: auto;
+    box-shadow: 0 2px 8px rgba(232, 168, 124, 0.3);
+    transition: all 0.3s;
+    animation: gentlePulse 2s ease-in-out infinite;
+}
+
+.install-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(232, 168, 124, 0.4);
+}
+
 /* Calendar Section */
 #calendar-section {
     margin-top: 3rem;
