@@ -113,17 +113,55 @@ btnNotToday.addEventListener('click', async () => {
     await completeActivity("NOT_TODAY", null, null);
 });
 
+// Image compression function
+function compressImage(file, maxWidth = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+
+                // Scale down if larger than maxWidth
+                if (width > maxWidth) {
+                    height = (height * maxWidth) / width;
+                    width = maxWidth;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Convert to compressed JPEG
+                const compressedData = canvas.toDataURL('image/jpeg', quality);
+                resolve(compressedData);
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
 // File input change
-uploadFile.addEventListener('change', (e) => {
+uploadFile.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file) {
-        fileName.textContent = file.name;
-        // Convert to base64
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            pendingImageData = event.target.result;
-        };
-        reader.readAsDataURL(file);
+        fileName.textContent = "Compressing...";
+        try {
+            // Compress the image before storing
+            pendingImageData = await compressImage(file, 800, 0.6);
+            fileName.textContent = file.name + " ✓";
+        } catch (err) {
+            console.error("Image compression failed:", err);
+            fileName.textContent = "Error processing image";
+            pendingImageData = null;
+        }
     } else {
         fileName.textContent = "No file selected";
         pendingImageData = null;
@@ -179,7 +217,14 @@ async function completeActivity(status, note, imageData) {
             await loadCalendar(user);
         }
     } catch (error) {
-        showFeedback("Something went wrong. Try again?", "neutral");
+        console.error("Save error:", error);
+
+        // Check if it's a size error
+        if (error.message && error.message.includes('longer than')) {
+            showFeedback("Image too large. Try a smaller photo?", "neutral");
+        } else {
+            showFeedback("Something went wrong. Try again?", "neutral");
+        }
     }
 }
 
