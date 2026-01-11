@@ -1,5 +1,6 @@
 import './style.css';
 import { initAuth, login, logout, getUser } from './auth.js';
+import { triggerConfetti, triggerLeaves } from './effects.js';
 import {
     getDailyAffirmation,
     getRandomActivity,
@@ -201,10 +202,12 @@ async function completeActivity(status, note, imageData) {
         await logActivity(user, currentActivity, status, note, imageData);
         await deletePendingTask(user);
 
-        // Show feedback
+        // Show feedback and effects
         if (status === "DONE") {
+            triggerConfetti();
             showFeedback("Saved. You did it.", "success");
         } else {
+            triggerLeaves();
             showFeedback("That's okay. Maybe tomorrow.", "neutral");
         }
 
