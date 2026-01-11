@@ -130,12 +130,13 @@ export async function logActivity(user, activity, status, note = null, imageData
     try {
         const docRef = await addDoc(collection(db, "userLogs"), {
             uid: user.uid,
+            displayName: user.displayName || "Anonymous",
             timestamp: serverTimestamp(),
             activityType: activity ? activity.type : "N/A",
             activityInstruction: activity ? activity.instruction : "N/A",
             status: status,
             note: note || null,
-            imageData: imageData || null // Store base64 (small images only)
+            imageData: imageData || null
         });
         console.log("Activity logged with ID:", docRef.id);
         return docRef.id;
