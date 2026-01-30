@@ -2,6 +2,10 @@
 
 A gentle web app to help overcome creative paralysis (blank page syndrome).
 
+# Try it here
+
+Sardina e Patatina [https://ijzepeda.github.io/Sardina-e-Patatina/]
+
 ## Features
 
 - 🎲 Random creative prompts across categories (Sketch, Photo, Talk, Writing, etc.)
@@ -16,6 +20,12 @@ A gentle web app to help overcome creative paralysis (blank page syndrome).
 - Firebase (Auth + Firestore)
 - Hosted on GitHub Pages
 
+  
+
+---
+  
+  
+     
 ## Setup
 
 ### 1. Clone the repository
