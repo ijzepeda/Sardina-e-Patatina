@@ -22,7 +22,7 @@ const viewUpload = document.getElementById('view-upload');
 const feedbackMessage = document.getElementById('feedback-message');
 
 const btnRoll = document.getElementById('btn-roll');
-const btnRollJapan = document.getElementById('btn-roll-japan'); // New
+const btnRollJapanActivity = document.getElementById('btn-roll-japan-activity'); // Activity View
 const btnAccept = document.getElementById('btn-accept'); // New name for "Done" in phase 1
 const btnCancelTask = document.getElementById('btn-cancel-task'); // New
 const btnReroll = document.getElementById('btn-reroll');
@@ -50,6 +50,11 @@ let pendingImageData = null;
 
 // Initialize
 async function init() {
+    // Hide all views initially to prevent flash
+    viewHome.classList.add('hidden');
+    viewActivity.classList.add('hidden');
+    viewUpload.classList.add('hidden');
+
     // Auth Listener
     initAuth(async (user) => {
         if (user) {
@@ -69,10 +74,14 @@ async function init() {
                     }
                     switchView('upload');
                 } else {
+
                     // Just proposed
                     renderActivity(pending);
                     switchView('activity');
                 }
+            } else {
+                // No pending task, show home
+                switchView('home');
             }
 
             // Load calendar & list
@@ -97,6 +106,8 @@ async function init() {
                     renderActivity(pending);
                     switchView('activity');
                 }
+            } else {
+                switchView('home');
             }
         }
     });
@@ -120,9 +131,9 @@ btnRoll.addEventListener('click', async () => {
     await showActivity(false); // Normal roll
 });
 
-if (btnRollJapan) {
-    btnRollJapan.addEventListener('click', async () => {
-        await showActivity(true); // Japan roll
+if (btnRollJapanActivity) {
+    btnRollJapanActivity.addEventListener('click', async () => {
+        await showActivity(true); // Forced Japan roll
     });
 }
 
@@ -330,11 +341,16 @@ async function loadLogList(user) {
         const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
         const label = log.status === 'DONE' ? '✓' : '☁️';
 
+        const note = log.note ? `"${log.note}"` : '';
+
         return `
             <div class="calendar-entry">
-                 <div>
-                    <span class="entry-date">${date}</span>
-                    <span class="entry-type">${log.activityType}</span>
+                 <div class="entry-content">
+                    <div>
+                        <span class="entry-date">${date}</span>
+                        <span class="entry-type"> • ${log.activityType}</span>
+                    </div>
+                    ${note ? `<div class="entry-note">${note}</div>` : ''}
                 </div>
                 <span class="entry-status ${statusClass}">${label}</span>
             </div>
