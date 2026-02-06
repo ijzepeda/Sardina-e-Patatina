@@ -202,5 +202,36 @@ export const JAPAN_ACTIVITIES = [
     { type: "Social", instruction: "Ask a classmate what their favorite Japanese food is.", duration: "3 min" },
     { type: "Social", instruction: "Find out how to say 'Delicious' in your classmate's native language.", duration: "5 min" },
     { type: "Exploration", instruction: "Go to a 100-yen shop and find the weirdest gadget.", duration: "15 min" },
-    { type: "Exploration", instruction: "Find a building with interesting architecture nearby.", duration: "5 min" }
+    { type: "Exploration", instruction: "Find a building with interesting architecture nearby.", duration: "5 min" },
+
+    { type: "Otaku 📚", instruction: "Ve a una librería (Book Off o Tsutaya) y encuentra la sección BL.", duration: "10 min", rule: "Solo mira las portadas y los estilos de arte. No hace falta comprar." },
+    { type: "Otaku 📚", instruction: "El desafío de las 'Manos Yaoi'.", duration: "5 min", rule: "Busca una portada de manga donde las manos sean desproporcionadamente grandes." },
+    { type: "Otaku 👓", instruction: "Encuentra un 'Ikemen' (chico guapo) de cartón.", duration: "2 min", rule: "Suele haber anuncios de cantantes o animes fuera de las tiendas." },
+    { type: "Otaku 🎒", instruction: "Spot an 'Ita-bag'.", duration: "2 min", rule: "Busca a alguien con una mochila cubierta de pines/chapitas de un solo personaje." },
+    { type: "Otaku 🎵", instruction: "Entra a un Animate o tienda de hobbies.", duration: "15 min", rule: "Busca el merchandising más extraño o pequeño que encuentres." },
+    { type: "Otaku 📺", instruction: "Prende la TV japonesa y busca un anime.", duration: "10 min", rule: "Intenta adivinar la personalidad del personaje solo por su voz." },
+
+    { type: "Sabor 🍵", instruction: "El 'Matcha Hunt' de Konbini.", duration: "5 min", rule: "Entra a un 7-Eleven/Lawson y cuenta cuántos productos verdes (matcha) ves." },
+    { type: "Sabor 🍵", instruction: "Compra una bebida de temporada limitada.", duration: "5 min", rule: "Busca la etiqueta 'Gentei' (限定). Si no te gusta, no tienes que terminártela." },
+    { type: "Sabor 🍙", instruction: "Cena de microondas nivel experto.", duration: "10 min", rule: "Elige una comida preparada (Bento) basándote solo en lo bonita que es la caja." },
+    { type: "Calma ☕", instruction: "Siéntate en un banco con una bebida caliente.", duration: "10 min", rule: "No mires el móvil. Solo observa a la gente pasar." },
+    { type: "Sabor 🍦", instruction: "Busca un sabor de helado extraño.", duration: "5 min", rule: "Puede ser batata, sésamo negro o soda. Solo identifícalo." },
+
+    { type: "Dorm Life 🏠", instruction: "Deja una nota adhesiva (Post-it) en la cocina común.", duration: "2 min", rule: "Dibuja una carita feliz o escribe 'Ganbatte!'." },
+    { type: "Dorm Life 🧼", instruction: "Descifra un botón de la lavadora/inodoro.", duration: "3 min", rule: "Usa Google Translate cámara para entender qué hace ese botón misterioso." },
+    { type: "Papelería 🖊️", instruction: "Prueba bolígrafos en una papelería (Loft/Tokyu Hands).", duration: "10 min", rule: "Encuentra el bolígrafo que se sienta mejor al escribir." },
+    { type: "Estudio 🎧", instruction: "Escucha a escondidas (Eavesdrop) gentilmente.", duration: "5 min", rule: "En un café o tren, intenta captar UNA sola palabra que ya conozcas." },
+    { type: "Estudio 🗾", instruction: "Encuentra tu Kanji favorito en la calle.", duration: "5 min", rule: "Busca un cartel que tenga un Kanji que ya sepas leer." },
+    { type: "Dorm Life 🧺", instruction: "Organiza tu escritorio estilo 'Aesthetic'.", duration: "10 min", rule: "Ponlo bonito como si fuera para una foto, aunque luego lo desordenes." },
+
+    { type: "Sonidos 🔊", instruction: "Escucha el semáforo.", duration: "1 min", rule: "Muchos cruces en Japón suenan como pajaritos o melodías. Cierra los ojos y escucha." },
+    { type: "Exploración 🚲", instruction: "Cuenta las bicicletas sin candado.", duration: "5 min", rule: "Observa la confianza de la seguridad en Japón." },
+    { type: "Exploración 🐾", instruction: "Encuentra un gato callejero o un perro en cochecito.", duration: "N/A", rule: "En Japón es muy común ver perros en carritos de bebé." },
+    { type: "Exploración 🌸", instruction: "Busca naturaleza en el concreto.", duration: "2 min", rule: "Encuentra una maceta cuidada fuera de una casa o una flor en la acera." },
+    { type: "Exploración 🏮", instruction: "Busca un farolillo rojo (Aka-chochin).", duration: "N/A", rule: "Suelen estar fuera de los Izakayas. Observa si brilla." }
+
+
+
+
+
 ];

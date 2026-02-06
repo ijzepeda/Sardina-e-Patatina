@@ -39,11 +39,11 @@ export function getDailyAffirmation() {
 }
 
 export function getRandomActivity(isJapanMode = false) {
-    let pool = [...ACTIVITIES];
+    let pool;
     if (isJapanMode) {
-        // Increase weight of Japan activities or just add them?
-        // Let's add them to the pool.
-        pool = [...pool, ...JAPAN_ACTIVITIES];
+        pool = [...JAPAN_ACTIVITIES];
+    } else {
+        pool = [...ACTIVITIES];
     }
     return pool[Math.floor(Math.random() * pool.length)];
 }
