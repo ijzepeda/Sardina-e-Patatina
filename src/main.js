@@ -22,7 +22,9 @@ const viewUpload = document.getElementById('view-upload');
 const feedbackMessage = document.getElementById('feedback-message');
 
 const btnRoll = document.getElementById('btn-roll');
-const btnDone = document.getElementById('btn-done');
+const btnRollJapan = document.getElementById('btn-roll-japan'); // New
+const btnAccept = document.getElementById('btn-accept'); // New name for "Done" in phase 1
+const btnCancelTask = document.getElementById('btn-cancel-task'); // New
 const btnReroll = document.getElementById('btn-reroll');
 const btnNotToday = document.getElementById('btn-nottoday');
 
@@ -35,11 +37,12 @@ const uploadText = document.getElementById('upload-text');
 const uploadFile = document.getElementById('upload-file');
 const fileName = document.getElementById('file-name');
 const btnSave = document.getElementById('btn-save');
-const btnSkip = document.getElementById('btn-skip');
+// const btnSkip = document.getElementById('btn-skip'); // Removed
 const uploadActivityText = document.getElementById('upload-activity-text');
 
-// Calendar
+// Calendar & List
 const calendarGrid = document.getElementById('calendar-grid');
+const logListContainer = document.getElementById('log-list');
 
 // State
 let currentActivity = null;
@@ -58,23 +61,42 @@ async function init() {
             const pending = await getPendingTask(user);
             if (pending) {
                 currentActivity = pending;
-                renderActivity(pending);
-                switchView('activity');
+
+                // Check if it was already accepted
+                if (pending.accepted) {
+                    if (uploadActivityText) {
+                        uploadActivityText.textContent = pending.instruction;
+                    }
+                    switchView('upload');
+                } else {
+                    // Just proposed
+                    renderActivity(pending);
+                    switchView('activity');
+                }
             }
 
-            // Load calendar
+            // Load calendar & list
             await loadCalendar(user);
+            await loadLogList(user);
         } else {
             authBtn.textContent = "Sign In";
             userDisplay.classList.add('hidden');
             calendarGrid.innerHTML = '<p class="calendar-empty">Sign in to see your history.</p>';
+            logListContainer.innerHTML = '';
 
             // Check for guest pending task
             const pending = await getPendingTask(null);
             if (pending) {
                 currentActivity = pending;
-                renderActivity(pending);
-                switchView('activity');
+                if (pending.accepted) {
+                    if (uploadActivityText) {
+                        uploadActivityText.textContent = pending.instruction;
+                    }
+                    switchView('upload');
+                } else {
+                    renderActivity(pending);
+                    switchView('activity');
+                }
             }
         }
     });
@@ -95,24 +117,47 @@ authBtn.addEventListener('click', () => {
 });
 
 btnRoll.addEventListener('click', async () => {
-    await showActivity();
+    await showActivity(false); // Normal roll
 });
+
+if (btnRollJapan) {
+    btnRollJapan.addEventListener('click', async () => {
+        await showActivity(true); // Japan roll
+    });
+}
 
 btnReroll.addEventListener('click', async () => {
-    await showActivity();
+    await showActivity(currentActivity?.isJapanMode || false); // Keep current mode
 });
 
-btnDone.addEventListener('click', () => {
-    // Show upload view with activity reminder
-    if (uploadActivityText && currentActivity) {
-        uploadActivityText.textContent = currentActivity.instruction;
-    }
-    switchView('upload');
-});
+// ACCEPT TASK FLOW
+if (btnAccept) {
+    btnAccept.addEventListener('click', async () => {
+        const user = getUser();
+        // Mark as accepted
+        currentActivity.accepted = true;
+        await savePendingTask(user, currentActivity);
+
+        // Show upload view
+        if (uploadActivityText && currentActivity) {
+            uploadActivityText.textContent = currentActivity.instruction;
+        }
+        switchView('upload');
+    });
+}
 
 btnNotToday.addEventListener('click', async () => {
     await completeActivity("NOT_TODAY", null, null);
 });
+
+// Cancel active task
+if (btnCancelTask) {
+    btnCancelTask.addEventListener('click', async () => {
+        const user = getUser();
+        await deletePendingTask(user);
+        resetView();
+    });
+}
 
 // Image compression function
 function compressImage(file, maxWidth = 800, quality = 0.7) {
@@ -174,32 +219,21 @@ btnSave.addEventListener('click', async () => {
     await completeActivity("DONE", note, pendingImageData);
 });
 
-btnSkip.addEventListener('click', async () => {
-    await completeActivity("DONE", null, null);
-});
+// btnSkip removed - now just Save or Cancel
 
 // Logic
-async function showActivity() {
-    const isJapanMode = document.getElementById('japan-mode-toggle').checked;
+async function showActivity(isJapanMode = false) {
     currentActivity = getRandomActivity(isJapanMode);
+    currentActivity.isJapanMode = isJapanMode; // Track mode for rerolls
     renderActivity(currentActivity);
     switchView('activity');
 
-    // Save as pending task
+    // Save as pending task (not accepted yet)
     const user = getUser();
     await savePendingTask(user, currentActivity);
 }
 
-// Japan Mode Toggle Persistence
-const japanModeToggle = document.getElementById('japan-mode-toggle');
-if (japanModeToggle) {
-    const savedMode = localStorage.getItem('japanMode') === 'true';
-    japanModeToggle.checked = savedMode;
-
-    japanModeToggle.addEventListener('change', (e) => {
-        localStorage.setItem('japanMode', e.target.checked);
-    });
-}
+// Japan Mode Toggle Persistence (REMOVED - now button based)
 
 function renderActivity(activity) {
     activityType.textContent = activity.type;
@@ -230,6 +264,7 @@ async function completeActivity(status, note, imageData) {
         // Reload calendar if logged in
         if (user) {
             await loadCalendar(user);
+            await loadLogList(user);
         }
     } catch (error) {
         console.error("Save error:", error);
@@ -277,6 +312,34 @@ function resetUploadForm() {
     uploadFile.value = '';
     fileName.textContent = 'No file selected';
     pendingImageData = null;
+}
+
+async function loadLogList(user) {
+    const logs = await getUserLogs(user, 20); // 20 latest
+
+    if (logs.length === 0) {
+        logListContainer.innerHTML = '';
+        return;
+    }
+
+    logListContainer.innerHTML = logs.map(log => {
+        const date = log.timestamp?.toDate?.()
+            ? log.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            : 'Recently';
+
+        const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
+        const label = log.status === 'DONE' ? '✓' : '☁️';
+
+        return `
+            <div class="calendar-entry">
+                 <div>
+                    <span class="entry-date">${date}</span>
+                    <span class="entry-type">${log.activityType}</span>
+                </div>
+                <span class="entry-status ${statusClass}">${label}</span>
+            </div>
+        `;
+    }).join('');
 }
 
 // Calendar Grid Logic
