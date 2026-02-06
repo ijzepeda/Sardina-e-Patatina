@@ -382,7 +382,7 @@ async function loadCalendar(user) {
             <div class="calendar-days-header">
                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
-            <div class="calendar">
+            <div class="calendar-grid">
     `;
 
     // Empty cells for days before the 1st
