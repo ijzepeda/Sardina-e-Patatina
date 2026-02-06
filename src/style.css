@@ -139,14 +139,45 @@ button {
     transition: all 0.3s ease;
 }
 
-/* Button Group */
+/* Button Group (Phase 1 legacy removal/adjust) */
 .button-group-vertical {
+    display: none;
+    /* Hiding for Phase 2 strict single button policy, or just remove usage in HTML */
+}
+
+/* Action Container */
+.actions-container {
+    width: 100%;
+    margin-top: 2rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+.action-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
     width: 100%;
-    align-items: center;
-    margin-top: 2rem;
+}
+
+.primary-btn.full-width {
+    width: 100%;
+    max-width: 350px;
+    margin: 0;
+    font-size: 1.2rem;
+    padding: 1rem;
+}
+
+.japan-accent-btn {
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.05);
+}
+
+.japan-accent-btn:hover {
+    background: #ff6b6b;
+    color: white;
 }
 
 .big-btn {
@@ -158,18 +189,10 @@ button {
     border-radius: 60px;
     box-shadow: var(--shadow-soft), 0 2px 10px rgba(232, 168, 124, 0.3);
     width: 100%;
-    /* Full width in container */
     max-width: 400px;
     position: relative;
     overflow: hidden;
-    margin-top: 0;
-    /* Reset */
-}
-
-.japan-btn {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
-    /* Japan Flag Red-ish */
-    box-shadow: var(--shadow-soft), 0 2px 10px rgba(255, 107, 107, 0.3);
+    margin-top: 2rem;
 }
 
 .primary-btn {
@@ -180,7 +203,18 @@ button {
     padding: 1rem 2rem;
     border-radius: 50px;
     box-shadow: 0 4px 15px rgba(126, 184, 162, 0.3);
-    margin: 0.5rem;
+}
+
+/* Calendar Wrapper Centering */
+.calendar-wrapper {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    margin-top: 1rem;
+    max-width: 400px;
+    margin-inline: auto;
+    /* CENTERED */
 }
 
 /* Log List Container */
@@ -189,6 +223,35 @@ button {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    max-width: 400px;
+    margin-inline: auto;
+}
+
+/* Log List Entry */
+.calendar-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.8rem 1rem;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+    border-bottom: 2px solid var(--bg-color);
+}
+
+.entry-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    text-align: left;
+}
+
+.entry-note {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-top: 0.2rem;
 }
 
 .big-btn::before {

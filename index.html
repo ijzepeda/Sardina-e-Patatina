@@ -39,10 +39,8 @@
                     <button id="btn-notifications" class="secondary-btn small-btn">🔔 Enable Reminders</button>
                 </div>
 
-                <div class="button-group-vertical">
-                    <button id="btn-roll" class="big-btn">🎲 Give me something to do</button>
-                    <button id="btn-roll-japan" class="big-btn japan-btn">🇯🇵 Surprise Me (Japan)</button>
-                </div>
+                <!-- Simplified Home: Just one roll button -->
+                <button id="btn-roll" class="big-btn">🎲 Give me something to do</button>
             </section>
 
             <!-- Activity View (Proposed) -->
@@ -55,10 +53,18 @@
                     </div>
                 </div>
 
-                <div class="actions">
-                    <button id="btn-accept" class="primary-btn">⚡ Accept Task</button>
-                    <button id="btn-reroll" class="secondary-btn">🔄 Roll again</button>
-                    <button id="btn-nottoday" class="secondary-btn">🌧️ Not today</button>
+                <div class="actions-container">
+                    <!-- Row 1: Primary Action -->
+                    <div class="action-row main">
+                        <button id="btn-accept" class="primary-btn full-width">⚡ Accept Task</button>
+                    </div>
+
+                    <!-- Row 2: Secondary Actions -->
+                    <div class="action-row secondary">
+                        <button id="btn-reroll" class="secondary-btn">🔄 Roll</button>
+                        <button id="btn-roll-japan-activity" class="secondary-btn japan-accent-btn">🇯🇵 もう一度</button>
+                        <button id="btn-nottoday" class="secondary-btn">🌧️ Skip</button>
+                    </div>
                 </div>
             </section>
 
