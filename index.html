@@ -6,14 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sardina de la patatina</title>
 
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA stuff handled by vite-plugin-pwa -->
     <meta name="theme-color" content="#e8a87c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Sardina" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-    <link rel="icon" type="image/png" href="/icons/icon-192.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,6 +35,18 @@
         <main>
             <!-- Home View -->
             <section id="view-home">
+                <div class="mode-toggle-container">
+                    <label class="switch">
+                        <input type="checkbox" id="japan-mode-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                    <span class="mode-label">🇯🇵 Japan Mode</span>
+                </div>
+
+                <div class="notification-container" style="margin-bottom: 2rem;">
+                    <button id="btn-notifications" class="secondary-btn small-btn">🔔 Enable Reminders</button>
+                </div>
+
                 <button id="btn-roll" class="big-btn">🎲 Give me something to do</button>
             </section>
 
@@ -95,47 +105,28 @@
                 <p class="calendar-empty">Sign in to see your history.</p>
             </div>
         </section>
+
+        <!-- iOS Install Instruction Banner -->
+        <div id="ios-install-banner" class="ios-install-banner hidden">
+            <div class="ios-banner-content">
+                <p>Install this app on your iPhone: tap <img
+                        src="https://upload.wikimedia.org/wikipedia/commons/4/42/Sf_square_and_arrow_up_symbol.svg"
+                        class="share-icon" alt="Share"> then "Add to Home Screen" <span class="plus-icon">+</span></p>
+                <button id="close-ios-banner" class="close-banner">×</button>
+            </div>
+        </div>
+        <!-- Detail Modal (Hidden by default) -->
+        <div id="day-modal" class="day-details-modal hidden">
+            <div class="modal-content">
+                <button class="modal-close" id="close-modal">&times;</button>
+                <div id="modal-body">
+                    <!-- Content injected by JS -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="/src/main.js"></script>
-
-    <!-- Service Worker & PWA Install -->
-    <script>
-        let deferredPrompt;
-        const installBtn = document.getElementById('install-btn');
-
-        // Capture the install prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            installBtn.classList.remove('hidden');
-        });
-
-        // Handle install button click
-        installBtn.addEventListener('click', async () => {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            console.log('Install outcome:', outcome);
-            deferredPrompt = null;
-            installBtn.classList.add('hidden');
-        });
-
-        // Hide button if already installed
-        window.addEventListener('appinstalled', () => {
-            installBtn.classList.add('hidden');
-            deferredPrompt = null;
-        });
-
-        // Register service worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('SW registered'))
-                    .catch(err => console.log('SW registration failed:', err));
-            });
-        }
-    </script>
 </body>
 
 </html>

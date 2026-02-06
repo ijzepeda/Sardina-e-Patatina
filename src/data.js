@@ -178,3 +178,29 @@ export const ACTIVITIES = [
     { type: "Listen", instruction: "Listen to classical music you don't usually hear.", duration: "5 min" },
     { type: "Listen", instruction: "Listen to a language you don't speak. Just let it wash over you.", duration: "5 min" }
 ];
+
+export const JAPAN_ACTIVITIES = [
+    // ================================
+    // JAPAN EXPLORATION (Specifically for Sarah)
+    // ================================
+    { type: "Exploration", instruction: "Find a train station stamp (Eki Stamp) and stamp your notebook.", duration: "15 min" },
+    { type: "Exploration", instruction: "Find a manhole cover with a unique design and take a picture.", duration: "5 min" },
+    { type: "Exploration", instruction: "Spot a statue of a character (anime/mascot) outside a shop.", duration: "5 min" },
+    { type: "Exploration", instruction: "Go to a 'Gachapon' machine and get one random toy.", duration: "5 min" },
+    { type: "Exploration", instruction: "Find a vending machine with a drink you've never seen before.", duration: "5 min" },
+    { type: "Exploration", instruction: "Visit a convenience store (Konbini) and buy a seasonal snack.", duration: "10 min" },
+    { type: "Exploration", instruction: "Find a small neighborhood shrine (not a big temple) and pay respects.", duration: "10 min" },
+    { type: "Exploration", instruction: "Take a photo of a 'purikura' booth (or take one inside if brave!).", duration: "10 min" },
+    { type: "Exploration", instruction: "Find a shop sign written in vertical Japanese text.", duration: "2 min" },
+    { type: "Exploration", instruction: "Spot someone wearing a Kimono or Yukata.", duration: "5 min" },
+    { type: "Exploration", instruction: "Find a quirky 'Engrish' sign or T-shirt.", duration: "2 min" },
+    { type: "Exploration", instruction: "Collect a flyer or tissue pack handed out on the street.", duration: "1 min" },
+    { type: "Exploration", instruction: "Find a hidden alleyway (Yokocho) that looks interesting.", duration: "10 min" },
+    { type: "Social", instruction: "Ask a new student where they are from.", duration: "2 min" },
+    { type: "Social", instruction: "Ask someone for a recommendation for a ramen shop.", duration: "3 min" },
+    { type: "Social", instruction: "Say 'Ohayo Gozaimasu' to a neighbor or dorm mate.", duration: "1 min" },
+    { type: "Social", instruction: "Ask a classmate what their favorite Japanese food is.", duration: "3 min" },
+    { type: "Social", instruction: "Find out how to say 'Delicious' in your classmate's native language.", duration: "5 min" },
+    { type: "Exploration", instruction: "Go to a 100-yen shop and find the weirdest gadget.", duration: "15 min" },
+    { type: "Exploration", instruction: "Find a building with interesting architecture nearby.", duration: "5 min" }
+];

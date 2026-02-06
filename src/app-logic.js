@@ -1,4 +1,4 @@
-import { AFFIRMATIONS, ACTIVITIES } from './data.js';
+import { AFFIRMATIONS, ACTIVITIES, JAPAN_ACTIVITIES } from './data.js';
 import { db } from './firebase-config.js';
 import {
     collection,
@@ -38,8 +38,14 @@ export function getDailyAffirmation() {
     return AFFIRMATIONS[newIndex];
 }
 
-export function getRandomActivity() {
-    return ACTIVITIES[Math.floor(Math.random() * ACTIVITIES.length)];
+export function getRandomActivity(isJapanMode = false) {
+    let pool = [...ACTIVITIES];
+    if (isJapanMode) {
+        // Increase weight of Japan activities or just add them?
+        // Let's add them to the pool.
+        pool = [...pool, ...JAPAN_ACTIVITIES];
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
 }
 
 // ============================================

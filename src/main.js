@@ -180,13 +180,25 @@ btnSkip.addEventListener('click', async () => {
 
 // Logic
 async function showActivity() {
-    currentActivity = getRandomActivity();
+    const isJapanMode = document.getElementById('japan-mode-toggle').checked;
+    currentActivity = getRandomActivity(isJapanMode);
     renderActivity(currentActivity);
     switchView('activity');
 
     // Save as pending task
     const user = getUser();
     await savePendingTask(user, currentActivity);
+}
+
+// Japan Mode Toggle Persistence
+const japanModeToggle = document.getElementById('japan-mode-toggle');
+if (japanModeToggle) {
+    const savedMode = localStorage.getItem('japanMode') === 'true';
+    japanModeToggle.checked = savedMode;
+
+    japanModeToggle.addEventListener('change', (e) => {
+        localStorage.setItem('japanMode', e.target.checked);
+    });
 }
 
 function renderActivity(activity) {
@@ -267,52 +279,254 @@ function resetUploadForm() {
     pendingImageData = null;
 }
 
+// Calendar Grid Logic
 async function loadCalendar(user) {
-    const logs = await getUserLogs(user);
+    const logs = await getUserLogs(user, 100); // Get more logs for the month
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
 
-    if (logs.length === 0) {
-        calendarGrid.innerHTML = '<p class="calendar-empty">No activities yet. Roll the dice!</p>';
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    let html = `
+        <div class="calendar-wrapper">
+            <div class="month-header">${monthNames[currentMonth]} ${currentYear}</div>
+            <div class="calendar-days-header">
+                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div class="calendar-grid">
+    `;
+
+    // Empty cells for days before the 1st
+    for (let i = 1; i <= firstDayIndex; i++) { // Adjusted for Sun=0
+        html += `<div class="calendar-day empty"></div>`;
+    }
+
+    // Days
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        // Find logs for this day
+        // Note: logs timestamp is Firestore Timestamp.
+        const dayLogs = logs.filter(log => {
+            if (!log.timestamp) return false;
+            const logDate = log.timestamp.toDate();
+            return logDate.getDate() === day &&
+                logDate.getMonth() === currentMonth &&
+                logDate.getFullYear() === currentYear;
+        });
+
+        const isToday = day === today.getDate();
+        const hasActivity = dayLogs.length > 0;
+        let stamp = '';
+        if (hasActivity) {
+            // Check status of the latest log for that day
+            const latest = dayLogs[0]; // logs are sorted desc
+            if (latest.status === 'DONE') {
+                stamp = '🌸'; // Flower stamp for completed
+            } else if (latest.status === 'NOT_TODAY') {
+                stamp = '☁️'; // Cloud for skipped
+            }
+        }
+
+        html += `
+            <div class="calendar-day ${isToday ? 'today' : ''} ${hasActivity ? 'has-activity' : ''}" 
+                 onclick="${hasActivity ? `openDayModal('${dateStr}')` : ''}">
+                <span class="day-number">${day}</span>
+                ${stamp ? `<span class="stamp">${stamp}</span>` : ''}
+            </div>
+        `;
+
+        // Store logs in a global map for easy access by modal
+        if (!window.calendarData) window.calendarData = {};
+        window.calendarData[dateStr] = dayLogs;
+    }
+
+    html += `</div></div>`; // Close grid and wrapper
+    calendarGrid.innerHTML = html;
+}
+
+// Modal Logic
+const dayModal = document.getElementById('day-modal');
+const closeModal = document.getElementById('close-modal');
+const modalBody = document.getElementById('modal-body');
+
+window.openDayModal = function (dateStr) {
+    const logs = window.calendarData[dateStr];
+    if (!logs || logs.length === 0) return;
+
+    const dateObj = new Date(dateStr + 'T12:00:00'); // Safe parsing
+    const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+    let content = `<div class="modal-date">${dateDisplay}</div>`;
+
+    logs.forEach(log => {
+        content += `
+            <div class="modal-entry">
+                <div class="modal-activity">${log.activityInstruction || 'Unknown Activity'}</div>
+                <div class="activity-type">${log.activityType}</div>
+                ${log.note ? `<p class="detail-note">"${log.note}"</p>` : ''}
+                ${log.imageData ? `<img src="${log.imageData}" class="detail-image" alt="Uploaded" />` : ''}
+                <hr style="opacity: 0.1; margin: 1rem 0;">
+            </div>
+        `;
+    });
+
+    modalBody.innerHTML = content;
+    dayModal.classList.remove('hidden');
+};
+
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        dayModal.classList.add('hidden');
+    });
+}
+
+// Close on click outside
+window.onclick = function (event) {
+    if (event.target === dayModal) {
+        dayModal.classList.add('hidden');
+    }
+};
+
+// iOS Detection & PWA Logic
+import { registerSW } from 'virtual:pwa-register';
+
+// Register Service Worker
+const updateSW = registerSW({
+    onNeedRefresh() {
+        console.log('New content available, reload?');
+        // We could show a toast here, but for now silent update is fine.
+    },
+    onOfflineReady() {
+        console.log('App is ready for offline work');
+    },
+});
+
+// Detect iOS
+function isIOS() {
+    return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+    ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
+}
+
+// Detect if running as PWA
+function isRunningStandalone() {
+    return (window.matchMedia('(display-mode: standalone)').matches) || (window.navigator.standalone) || document.referrer.includes('android-app://');
+}
+
+// OS Specific Install Logic
+const installBtn = document.getElementById('install-btn');
+const iosBanner = document.getElementById('ios-install-banner');
+const iosCloseBtn = document.getElementById('close-ios-banner');
+
+// Android / Desktop Install Prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPrompt = e;
+    // Show the install button
+    if (!isRunningStandalone() && !isIOS()) {
+        installBtn.classList.remove('hidden');
+    }
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log('Install outcome:', outcome);
+        deferredPrompt = null;
+        installBtn.classList.add('hidden');
+    });
+}
+
+// iOS Banner Logic
+if (isIOS() && !isRunningStandalone()) {
+    // Check if we've already shown it this session
+    if (!sessionStorage.getItem('iosBannerDismissed')) {
+        // Show after a short delay
+        setTimeout(() => {
+            iosBanner.classList.remove('hidden');
+        }, 2000);
+    }
+}
+
+if (iosCloseBtn) {
+    iosCloseBtn.addEventListener('click', () => {
+        iosBanner.classList.add('hidden');
+        sessionStorage.setItem('iosBannerDismissed', 'true');
+    });
+}
+
+// Notification Logic
+const btnNotifications = document.getElementById('btn-notifications');
+
+function checkNotificationPermission() {
+    if (!('Notification' in window)) {
+        if (btnNotifications) btnNotifications.classList.add('hidden');
         return;
     }
 
-    calendarGrid.innerHTML = logs.map((log, index) => {
-        const date = log.timestamp?.toDate?.()
-            ? log.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            : 'Just now';
-
-        const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
-        const statusLabel = log.status === 'DONE' ? '✓ Done' : '🌧️ Skipped';
-
-        // Check if there's any detail content
-        const hasDetails = log.note || log.imageData || log.activityInstruction;
-        const detailsId = `details-${index}`;
-
-        return `
-            <div class="calendar-entry ${hasDetails ? 'clickable' : ''}" ${hasDetails ? `onclick="toggleDetails('${detailsId}')"` : ''}>
-                <div>
-                    <span class="entry-date">${date}</span>
-                    <span class="entry-type">${log.activityType}</span>
-                </div>
-                <span class="entry-status ${statusClass}">${statusLabel}</span>
-            </div>
-            ${hasDetails ? `
-            <div id="${detailsId}" class="entry-details hidden">
-                <p class="detail-instruction">${log.activityInstruction || ''}</p>
-                ${log.note ? `<p class="detail-note">"${log.note}"</p>` : ''}
-                ${log.imageData ? `<img src="${log.imageData}" class="detail-image" alt="Uploaded image" />` : ''}
-            </div>
-            ` : ''}
-        `;
-    }).join('');
+    if (Notification.permission === 'granted') {
+        if (btnNotifications) {
+            btnNotifications.textContent = '🔔 Reminders On';
+            btnNotifications.disabled = true;
+            btnNotifications.style.opacity = '0.5';
+        }
+    } else if (Notification.permission === 'denied') {
+        if (btnNotifications) {
+            btnNotifications.textContent = '🔕 Reminders blocked';
+            btnNotifications.disabled = true;
+        }
+    }
 }
 
-// Global function for toggling details (needs to be on window for inline onclick)
-window.toggleDetails = function (id) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.classList.toggle('hidden');
+async function requestNotificationPermission() {
+    if (!('Notification' in window)) return;
+
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+        if (btnNotifications) {
+            btnNotifications.textContent = '🔔 Reminders On';
+            btnNotifications.disabled = true;
+        }
+        new Notification("Sardina y La Patatina", {
+            body: "You're all set! We'll remind you to do small things.",
+            icon: '/icons/icon-192.png'
+        });
+
+        // "Schedule" a pretend notification (POC)
+        // In a real PWA we'd use Push API or Periodic Sync if available
+        setTimeout(() => {
+            if (document.hidden) {
+                new Notification("Hey!", {
+                    body: "Did you do your sardina activity today?",
+                    icon: '/icons/icon-192.png'
+                });
+            }
+        }, 1000 * 60 * 60 * 24); // 24 hours (just a placeholder)
     }
-};
+}
+
+if (btnNotifications) {
+    btnNotifications.addEventListener('click', requestNotificationPermission);
+    checkNotificationPermission();
+}
 
 // Start
 init();
