@@ -584,6 +584,8 @@ nav {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 5px;
+    width: 100%;
+    /* Ensure full width */
 }
 
 .calendar-day {

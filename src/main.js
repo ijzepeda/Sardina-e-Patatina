@@ -344,7 +344,7 @@ async function loadLogList(user) {
         const note = log.note ? `"${log.note}"` : '';
 
         return `
-            <div class="calendar-entry">
+            <div class="calendar-entry" onclick="openDayModal('${log.timestamp?.toDate ? log.timestamp.toDate().toISOString().split('T')[0] : ''}')" style="cursor: pointer;">
                  <div class="entry-content">
                     <div>
                         <span class="entry-date">${date}</span>
