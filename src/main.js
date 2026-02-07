@@ -371,57 +371,147 @@ async function loadLogList(user) {
 }
 
 // Calendar Grid Logic
+// async function loadCalendar(user) {
+//     const logs = await getUserLogs(user, 100); // Get more logs for the month
+//     const today = new Date();
+//     const currentMonth = today.getMonth();
+//     const currentYear = today.getFullYear();
+
+//     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+//     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+
+//     const monthNames = ["January", "February", "March", "April", "May", "June",
+//         "July", "August", "September", "October", "November", "December"
+//     ];
+
+//     let html = `
+//         <div class="calendar-wrapper">
+//             <div class="month-header">${monthNames[currentMonth]} ${currentYear}</div>
+//             <div class="calendar-days-header">
+//                 <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+//             </div>
+//             <div class="calendar-grid">
+//     `;
+
+//     // Empty cells for days before the 1st
+//     for (let i = 1; i <= firstDayIndex; i++) { // Adjusted for Sun=0
+//         html += `<div class="calendar-day empty"></div>`;
+//     }
+
+//     // Days
+//     for (let day = 1; day <= daysInMonth; day++) {
+//         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+//         // Find logs for this day
+//         // Note: logs timestamp is Firestore Timestamp.
+//         const dayLogs = logs.filter(log => {
+//             if (!log.timestamp) return false;
+//             const logDate = log.timestamp.toDate();
+//             return logDate.getDate() === day &&
+//                 logDate.getMonth() === currentMonth &&
+//                 logDate.getFullYear() === currentYear;
+//         });
+
+//         const isToday = day === today.getDate();
+//         const hasActivity = dayLogs.length > 0;
+//         let stamp = '';
+//         if (hasActivity) {
+//             // Check status of the latest log for that day
+//             const latest = dayLogs[0]; // logs are sorted desc
+//             if (latest.status === 'DONE') {
+//                 stamp = '🌸'; // Flower stamp for completed
+//             } else if (latest.status === 'NOT_TODAY') {
+//                 stamp = '☁️'; // Cloud for skipped
+//             }
+//         }
+
+//         html += `
+//             <div class="calendar-day ${isToday ? 'today' : ''} ${hasActivity ? 'has-activity' : ''}" 
+//                  onclick="${hasActivity ? `openDayModal('${dateStr}')` : ''}">
+//                 <span class="day-number">${day}</span>
+//                 ${stamp ? `<span class="stamp">${stamp}</span>` : ''}
+//             </div>
+//         `;
+
+//         // Store logs in a global map for easy access by modal
+//         if (!window.calendarData) window.calendarData = {};
+//         window.calendarData[dateStr] = dayLogs;
+//     }
+
+//     html += `</div></div>`; // Close grid and wrapper
+//     calendarGrid.innerHTML = html;
+// }
+// ----------------- esta nueva funcion permite tener varios meeses
+// Variable global para controlar qué mes estamos viendo
+let viewingDate = new Date();
+
+// --- MODIFICAR LA FUNCIÓN loadCalendar EXISTENTE ---
 async function loadCalendar(user) {
-    const logs = await getUserLogs(user, 100); // Get more logs for the month
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
+    // 1. Obtenemos MUCHOS logs (para cubrir varios meses si es posible)
+    // Nota: Lo ideal sería pedir logs por rango de fechas, pero para no tocar
+    // la lógica de base de datos, pediremos 100 y filtraremos en memoria.
+    const logs = await getUserLogs(user, 150);
+
+    // 2. ARREGLO DEL MODAL:
+    // Llenamos window.calendarData con TODOS los logs obtenidos, 
+    // no solo los del mes actual. Así la lista siempre funcionará.
+    window.calendarData = {}; // Reiniciamos
+
+    logs.forEach(log => {
+        if (!log.timestamp) return;
+        const d = log.timestamp.toDate();
+        // Formato YYYY-MM-DD local para coincidir con la key del clic
+        // Usamos una función auxiliar para asegurar formato correcto
+        const dateStr = d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0');
+
+        if (!window.calendarData[dateStr]) {
+            window.calendarData[dateStr] = [];
+        }
+        window.calendarData[dateStr].push(log);
+    });
+
+    // 3. Cálculos para pintar el mes que estamos VIENDO (viewingDate)
+    const currentMonth = viewingDate.getMonth();
+    const currentYear = viewingDate.getFullYear();
+
+    // Actualizar el texto del mes (Ej: "September 2026")
+    const monthLabel = document.getElementById('calendar-month-label');
+    if (monthLabel) {
+        const monthName = viewingDate.toLocaleString('default', { month: 'long' });
+        monthLabel.textContent = `${monthName} ${currentYear}`;
+    }
 
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
 
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
+    let html = '';
 
-    let html = `
-        <div class="calendar-wrapper">
-            <div class="month-header">${monthNames[currentMonth]} ${currentYear}</div>
-            <div class="calendar-days-header">
-                <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
-            </div>
-            <div class="calendar-grid">
-    `;
-
-    // Empty cells for days before the 1st
-    for (let i = 1; i <= firstDayIndex; i++) { // Adjusted for Sun=0
+    // Celdas vacías antes del día 1
+    for (let i = 0; i < firstDayIndex; i++) {
         html += `<div class="calendar-day empty"></div>`;
     }
 
-    // Days
+    // Días del mes
+    const today = new Date();
+
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        // Find logs for this day
-        // Note: logs timestamp is Firestore Timestamp.
-        const dayLogs = logs.filter(log => {
-            if (!log.timestamp) return false;
-            const logDate = log.timestamp.toDate();
-            return logDate.getDate() === day &&
-                logDate.getMonth() === currentMonth &&
-                logDate.getFullYear() === currentYear;
-        });
 
-        const isToday = day === today.getDate();
+        // Consultamos el mapa global que llenamos al principio
+        const dayLogs = window.calendarData[dateStr] || [];
         const hasActivity = dayLogs.length > 0;
+
+        // Es hoy?
+        const isToday = day === today.getDate() &&
+            currentMonth === today.getMonth() &&
+            currentYear === today.getFullYear();
+
         let stamp = '';
         if (hasActivity) {
-            // Check status of the latest log for that day
-            const latest = dayLogs[0]; // logs are sorted desc
-            if (latest.status === 'DONE') {
-                stamp = '🌸'; // Flower stamp for completed
-            } else if (latest.status === 'NOT_TODAY') {
-                stamp = '☁️'; // Cloud for skipped
-            }
+            const latest = dayLogs[0];
+            if (latest.status === 'DONE') stamp = '🌸';
+            else if (latest.status === 'NOT_TODAY') stamp = '☁️';
         }
 
         html += `
@@ -431,15 +521,29 @@ async function loadCalendar(user) {
                 ${stamp ? `<span class="stamp">${stamp}</span>` : ''}
             </div>
         `;
-
-        // Store logs in a global map for easy access by modal
-        if (!window.calendarData) window.calendarData = {};
-        window.calendarData[dateStr] = dayLogs;
     }
 
-    html += `</div></div>`; // Close grid and wrapper
-    calendarGrid.innerHTML = html;
+    const grid = document.getElementById('calendar-grid');
+    if (grid) grid.innerHTML = html;
 }
+
+// --- AGREGAR ESTOS LISTENERS AL FINAL DE INIT() O CERCA DE TUS OTROS LISTENERS ---
+
+// Listener para Anterior Mes
+document.getElementById('prev-month')?.addEventListener('click', () => {
+    viewingDate.setMonth(viewingDate.getMonth() - 1);
+    const user = getUser(); // Asegúrate de tener acceso a getUser o pasa el usuario
+    loadCalendar(user);
+});
+
+// Listener para Siguiente Mes
+document.getElementById('next-month')?.addEventListener('click', () => {
+    viewingDate.setMonth(viewingDate.getMonth() + 1);
+    const user = getUser();
+    loadCalendar(user);
+});
+
+
 
 // Modal Logic
 const dayModal = document.getElementById('day-modal');

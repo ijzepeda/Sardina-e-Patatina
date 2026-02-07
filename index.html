@@ -93,11 +93,38 @@
 
             <div id="feedback-message" class="feedback hidden"></div>
 
-            <section id="calendar-section">
+            <!-- <section id="calendar-section">
                 <h3 class="section-title">History</h3>
                 <div id="calendar-grid"></div>
                 <div id="log-list"></div>
+            </section> -->
+            <section id="calendar-section">
+                <h3 class="section-title">🌸🌸🌸 Activity Log 🌸🌸🌸</h3>
+
+                <div class="calendar-wrapper">
+                    <div class="calendar-nav">
+                        <button id="prev-month" class="nav-btn">‹</button>
+                        <span id="calendar-month-label" class="current-month-label">Month</span>
+                        <button id="next-month" class="nav-btn">›</button>
+                    </div>
+
+                    <div class="calendar-days-header">
+                        <div>S</div>
+                        <div>M</div>
+                        <div>T</div>
+                        <div>W</div>
+                        <div>T</div>
+                        <div>F</div>
+                        <div>S</div>
+                    </div>
+
+                    <div id="calendar-grid" class="calendar-grid">
+                    </div>
+                </div>
+
+                <div id="log-list"></div>
             </section>
+
         </main>
 
         <div id="day-modal" class="day-details-modal hidden">

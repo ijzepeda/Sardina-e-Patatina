@@ -61,6 +61,46 @@ nav {
     cursor: pointer;
 }
 
+.calendar-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0 0.5rem;
+}
+
+.nav-btn {
+    background: white;
+    border: 1px solid #EEE;
+    border-radius: 50%;
+    /* Botones redondos */
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-orange);
+    font-weight: bold;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background: var(--accent-orange);
+    color: white;
+    transform: scale(1.1);
+}
+
+.current-month-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    color: var(--text-main);
+    text-transform: capitalize;
+    font-size: 1.1rem;
+}
+
 /* ================= HEADER & SAKURAS ================= */
 header {
     background: transparent;
@@ -550,6 +590,17 @@ input[type="file"]#upload-file {
     margin-bottom: 1rem;
 }
 
+/* --- ARREGLO IMAGEN MODAL --- */
+/* Asegura que la imagen nunca se salga del modal */
+.modal-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-top: 1rem;
+    object-fit: contain;
+    display: block;
+}
+
 /* Animación de Confeti que había desaparecido */
 .confetti {
     position: fixed;
@@ -601,3 +652,7 @@ font-size: 3rem;
 
 
 el div de escamas, se movio al navbar. */
+
+/* 
+Ya tampoco veo: 
+reminders, ni Install App */
