@@ -20,9 +20,19 @@
             <div class="currency-display">
                 🌸 <span class="count" id="escamas-count">0</span> Tasks 🐟
             </div>
-            <button id="auth-btn" class="auth-btn">Sign In</button>
+
+            <!-- <button id="auth-btn" class="auth-btn">Sign In</button> -->
+            <div class="nav-actions">
+                <button id="btn-notifications" class="icon-btn" title="Enable Reminders">🔔</button>
+                <button id="install-btn" class="icon-btn hidden" title="Install App">APP</button>
+                <button id="auth-btn" class="auth-btn">Sign In</button>
+            </div>
             <span id="user-display" class="hidden auth-btn">Guest</span>
         </nav>
+        <div id="ios-install-banner" class="hidden ios-banner">
+            <p>Install this app: Tap <span style="font-size:1.2em">share</span> then "Add to Home Screen" ➕</p>
+            <button id="close-ios-banner">&times;</button>
+        </div>
 
         <header>
             <div class="title-pill">

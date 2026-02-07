@@ -331,8 +331,55 @@ function resetUploadForm() {
     pendingImageData = null;
 }
 
+// async function loadLogListOLDER(user) {
+//     const logs = await getUserLogs(user, 20); // 20 latest
+
+//     if (logs.length === 0) {
+//         logListContainer.innerHTML = '';
+//         return;
+//     }
+
+//     logListContainer.innerHTML = logs.map(log => {
+//         const dateObj = log.timestamp?.toDate?.() ? log.timestamp.toDate() : null;
+
+//         const date = dateObj
+//             ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+//             : 'Recently';
+
+//         const isoDate = dateObj ? dateObj.toISOString().split('T')[0] : ''; // YYYY-MM-DD
+
+//         const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
+//         const label = log.status === 'DONE' ? '✓' : '☁️';
+//         const note = log.note ? `"${log.note}"` : '';
+
+//         // If no date (legacy data?), don't make it clickable or just pass empty
+//         const clickAttr = isoDate ? `onclick="openDayModal('${isoDate}')" style="cursor: pointer;"` : '';
+
+//         return `
+//             <div class="calendar-entry" ${clickAttr}>
+//                  <div class="entry-content">
+//                     <div>
+//                         <span class="entry-date">${date}</span>
+//                         <span class="entry-type"> • ${log.activityType}</span>
+//                     </div>
+//                     ${note ? `<div class="entry-note">${note}</div>` : ''}
+//                 </div>
+//                 <span class="entry-status ${statusClass}">${label}</span>
+//             </div>
+//         `;
+//     }).join('');
+// }
+
+// --- Agregar esta función auxiliar para usar SIEMPRE hora local ---
+function getLocalDateStr(dateObj) {
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 async function loadLogList(user) {
-    const logs = await getUserLogs(user, 20); // 20 latest
+    const logs = await getUserLogs(user, 20);
 
     if (logs.length === 0) {
         logListContainer.innerHTML = '';
@@ -346,13 +393,14 @@ async function loadLogList(user) {
             ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             : 'Recently';
 
-        const isoDate = dateObj ? dateObj.toISOString().split('T')[0] : ''; // YYYY-MM-DD
+        // CORRECCIÓN AQUÍ: Usamos la función local en vez de toISOString()
+        const isoDate = dateObj ? getLocalDateStr(dateObj) : '';
 
         const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
         const label = log.status === 'DONE' ? '✓' : '☁️';
         const note = log.note ? `"${log.note}"` : '';
 
-        // If no date (legacy data?), don't make it clickable or just pass empty
+        // Ahora el ID coincidirá exactamente con el del calendario
         const clickAttr = isoDate ? `onclick="openDayModal('${isoDate}')" style="cursor: pointer;"` : '';
 
         return `
@@ -369,6 +417,8 @@ async function loadLogList(user) {
         `;
     }).join('');
 }
+
+
 
 // Calendar Grid Logic
 // async function loadCalendar(user) {
@@ -717,6 +767,8 @@ async function requestNotificationPermission() {
         }, 1000 * 60 * 60 * 24); // 24 hours (just a placeholder)
     }
 }
+
+
 
 if (btnNotifications) {
     btnNotifications.addEventListener('click', requestNotificationPermission);
