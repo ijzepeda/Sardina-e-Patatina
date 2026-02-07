@@ -59,7 +59,7 @@ async function init() {
     initAuth(async (user) => {
         if (user) {
             authBtn.textContent = "Sign Out ";
-            userDisplay.textContent = " - " + (user.displayName || user.email);
+            // userDisplay.textContent = " - " + (user.displayName || user.email);
             userDisplay.classList.remove('hidden');
 
             // Get list of tasks completed
@@ -600,23 +600,66 @@ const dayModal = document.getElementById('day-modal');
 const closeModal = document.getElementById('close-modal');
 const modalBody = document.getElementById('modal-body');
 
+
+// VERSION VIEJA sin colores pero funciona
+// window.openDayModal = function (dateStr) {
+//     const logs = window.calendarData[dateStr];
+//     if (!logs || logs.length === 0) return;
+
+//     const dateObj = new Date(dateStr + 'T12:00:00'); // Safe parsing
+//     const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+//     let content = `<div class="modal-date">${dateDisplay}</div>`;
+
+//     logs.forEach(log => {
+//         content += `
+//             <div class="modal-entry">
+//                 <div class="modal-activity">${log.activityInstruction || 'Unknown Activity'}</div>
+//                 <div class="activity-type">${log.activityType}</div>
+//                 ${log.note ? `<p class="detail-note">"${log.note}"</p>` : ''}
+//                 ${log.imageData ? `<img src="${log.imageData}" class="detail-image" alt="Uploaded" />` : ''}
+//                 <hr style="opacity: 0.1; margin: 1rem 0;">
+//             </div>
+//         `;
+//     });
+
+//     modalBody.innerHTML = content;
+//     dayModal.classList.remove('hidden');
+// };
+// --- FUNCIÓN DEL MODAL ACTUALIZADA CON DISEÑO DE PESTAÑAS ---
 window.openDayModal = function (dateStr) {
     const logs = window.calendarData[dateStr];
     if (!logs || logs.length === 0) return;
 
-    const dateObj = new Date(dateStr + 'T12:00:00'); // Safe parsing
+    // Crear fecha bonita para el título
+    // Truco: creamos la fecha usando componentes locales para evitar líos de zona horaria
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
     const dateDisplay = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-    let content = `<div class="modal-date">${dateDisplay}</div>`;
+    let content = `<div class="modal-date" style="text-align:center; margin-bottom:1.5rem; font-weight:800; font-size:1.1rem; color:var(--accent-orange);">${dateDisplay}</div>`;
 
     logs.forEach(log => {
+        // 1. Normalizar el tipo para usarlo como clase CSS
+        // Ejemplo: "Photo" -> "type-photo", "Physical Activity" -> "type-physical-activity"
+        const rawType = log.activityType || 'General';
+        const typeSlug = rawType.toLowerCase().trim().split(' ')[0]; // Usamos la primera palabra como clave (ej: "physical")
+        const typeClass = `type-${typeSlug}`;
+
+        // 2. Construir HTML
         content += `
-            <div class="modal-entry">
-                <div class="modal-activity">${log.activityInstruction || 'Unknown Activity'}</div>
-                <div class="activity-type">${log.activityType}</div>
-                ${log.note ? `<p class="detail-note">"${log.note}"</p>` : ''}
-                ${log.imageData ? `<img src="${log.imageData}" class="detail-image" alt="Uploaded" />` : ''}
-                <hr style="opacity: 0.1; margin: 1rem 0;">
+            <div class="modal-entry ${typeClass}">
+                <div class="modal-header-tab ${typeClass}">
+                    ${rawType}
+                </div>
+                
+                <div class="modal-entry-body">
+                    <div class="modal-activity">${log.activityInstruction || 'Activity'}</div>
+                    
+                    ${log.note ? `<div class="detail-note">"${log.note}"</div>` : ''}
+                    
+                    ${log.imageData ? `<img src="${log.imageData}" loading="lazy" alt="Evidence" />` : ''}
+                </div>
             </div>
         `;
     });
@@ -624,6 +667,9 @@ window.openDayModal = function (dateStr) {
     modalBody.innerHTML = content;
     dayModal.classList.remove('hidden');
 };
+
+
+
 
 if (closeModal) {
     closeModal.addEventListener('click', () => {
@@ -729,13 +775,13 @@ function checkNotificationPermission() {
 
     if (Notification.permission === 'granted') {
         if (btnNotifications) {
-            btnNotifications.textContent = '🔔 Reminders On';
+            btnNotifications.textContent = '🔔';
             btnNotifications.disabled = true;
             btnNotifications.style.opacity = '0.5';
         }
     } else if (Notification.permission === 'denied') {
         if (btnNotifications) {
-            btnNotifications.textContent = '🔕 Reminders blocked';
+            btnNotifications.textContent = '🔕';
             btnNotifications.disabled = true;
         }
     }
@@ -747,7 +793,7 @@ async function requestNotificationPermission() {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
         if (btnNotifications) {
-            btnNotifications.textContent = '🔔 Reminders On';
+            btnNotifications.textContent = '🔕';
             btnNotifications.disabled = true;
         }
         new Notification("Sardina y La Patatina", {
