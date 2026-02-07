@@ -118,6 +118,62 @@ async function init() {
             }
         }
     });
+    initAuthfalla(async (user) => {
+        if (user) {
+            // --- USUARIO LOGUEADO ---
+            authBtn.textContent = "Sign Out";
+            userDisplay.textContent = ""; // Ocultamos el nombre para limpiar la UI
+
+            // Ocultar pantalla de login
+            document.getElementById('view-login').classList.add('hidden');
+
+            // Cargar lógica normal
+            const pending = await getPendingTask(user);
+            if (pending) {
+                currentActivity = pending;
+                if (pending.accepted) {
+                    if (uploadActivityText) uploadActivityText.textContent = pending.instruction;
+                    switchView('upload');
+                } else {
+                    renderActivity(pending);
+                    switchView('activity');
+                }
+            } else {
+                switchView('home');
+            }
+
+            // Cargar datos
+            await loadCalendar(user);
+            await loadLogList(user);
+
+            // Actualizar escamas
+            const logs = await getUserLogs(user, 100);
+            const completedCount = logs.filter(l => l.status === 'DONE').length;
+            document.getElementById('escamas-count').textContent = completedCount;
+
+        } else {
+            // --- GUEST / NO LOGUEADO (BLOQUEO TOTAL) ---
+            authBtn.textContent = ""; // Ocultar botón pequeño del nav si quieres
+            userDisplay.classList.add('hidden');
+
+            // Ocultar TODAS las vistas funcionales
+            viewHome.classList.add('hidden');
+            viewActivity.classList.add('hidden');
+            viewUpload.classList.add('hidden');
+            document.getElementById('calendar-section').classList.add('hidden'); // Ocultar historial
+
+            // Mostrar SOLO la pantalla de Login
+            document.getElementById('view-login').classList.remove('hidden');
+        }
+    });
+
+    // Listener para el nuevo botón grande de login
+    const btnLoginMain = document.getElementById('btn-login-main');
+    if (btnLoginMain) {
+        btnLoginMain.addEventListener('click', login);
+    }
+
+
 
     // Load Daily Affirmation
     const affirmation = getDailyAffirmation();
@@ -138,12 +194,22 @@ btnRoll.addEventListener('click', async () => {
     await showActivity(false); // Normal roll
 });
 
+// if (btnRollJapanActivity) {
+//     btnRollJapanActivity.addEventListener('click', async () => {
+//         await showActivity(true); // Forced Japan roll
+//     });
+// }
 if (btnRollJapanActivity) {
     btnRollJapanActivity.addEventListener('click', async () => {
-        await showActivity(true); // Forced Japan roll
+        // Revisamos en qué modo estamos actualmente
+        const isCurrentlyJapan = currentActivity?.isJapanMode || false;
+
+        // Invertimos el modo: 
+        // Si es Japón (true) -> queremos Mundo (false)
+        // Si es Mundo (false) -> queremos Japón (true)
+        await showActivity(!isCurrentlyJapan);
     });
 }
-
 btnReroll.addEventListener('click', async () => {
     await showActivity(currentActivity?.isJapanMode || false); // Keep current mode
 });
@@ -253,10 +319,34 @@ async function showActivity(isJapanMode = false) {
 
 // Japan Mode Toggle Persistence (REMOVED - now button based)
 
+// function renderActivity(activity) {
+//     activityType.textContent = activity.type;
+//     activityInstruction.textContent = activity.instruction;
+//     activityDuration.textContent = activity.duration;
+// }
 function renderActivity(activity) {
     activityType.textContent = activity.type;
     activityInstruction.textContent = activity.instruction;
     activityDuration.textContent = activity.duration;
+
+    // Asignar clase de color al tag (para que coincida con el modal)
+    // Limpiamos clases previas
+    const pill = document.querySelector('.tag-pill');
+    pill.className = 'tag-pill'; // Reset
+    // Agregamos la clase de tipo (ej: type-photo)
+    const typeSlug = activity.type.split(' ')[0].toLowerCase();
+    pill.classList.add(`type-${typeSlug}`);
+
+    // --- LÓGICA DEL BOTÓN JAPÓN / MUNDO ---
+    if (activity.isJapanMode) {
+        // Si estamos en modo Japón, el botón debe ofrecer "Volver al Mundo"
+        btnRollJapanActivity.textContent = "🌎 World Mode";
+        btnRollJapanActivity.classList.remove('japan-btn'); // Quitar estilo rosa si quieres
+    } else {
+        // Si estamos en modo Normal, el botón ofrece "Ir a Japón"
+        btnRollJapanActivity.textContent = "🇯🇵 JP Mode";
+        btnRollJapanActivity.classList.add('japan-btn');
+    }
 }
 
 async function completeActivity(status, note, imageData) {
