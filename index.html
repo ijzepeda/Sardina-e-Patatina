@@ -5,139 +5,108 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sardina de la patatina</title>
-
-    <!-- PWA stuff handled by vite-plugin-pwa -->
-    <meta name="theme-color" content="#e8a87c" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Sardina" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=nunito:wght@600;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div id="app">
         <nav>
-            <button id="install-btn" class="install-btn hidden">📲 Install App</button>
+
+            <div class="currency-display">
+                🌸 <span class="count" id="escamas-count">0</span> Tasks 🐟
+            </div>
             <button id="auth-btn" class="auth-btn">Sign In</button>
             <span id="user-display" class="hidden auth-btn">Guest</span>
         </nav>
 
         <header>
-            <h1 class="page-title">Sardina de la patatina</h1>
-            <div id="affirmation-display" class="affirmation">Loading...</div>
+            <div class="title-pill">
+                <span class="sakura-decor left">🌸</span>
 
-            <div class="currency-display">
-                <span class="icon">🐟</span>
-                <span class="count">256</span>
-                <span class="label">Escamas</span>
+                <h1 class="page-title">Sardina<br>Patatina</h1>
+
+                <span class="sakura-decor right">🌸</span>
             </div>
+
+            <div id="affirmation-display" class="affirmation">
+                "You're not wasting time by existing."
+            </div>
+
+
         </header>
 
         <main>
-            <!-- Home View -->
             <section id="view-home">
-                <div class="notification-container" style="margin-bottom: 2rem;">
-                    <button id="btn-notifications" class="secondary-btn small-btn">🔔 Enable Reminders</button>
-                </div>
-
-                <!-- Simplified Home: Just one roll button -->
                 <button id="btn-roll" class="big-btn">🎲 Give me something to do</button>
             </section>
 
-            <!-- Activity View (Proposed) -->
             <section id="view-activity" class="hidden">
                 <div class="activity-card">
-                    <span id="activity-type" class="activity-type">Type</span>
+                    <div class="tag-pill">
+                        🏠 <span id="activity-type">General</span>
+                    </div>
+
                     <h2 id="activity-instruction" class="activity-instruction">Instruction...</h2>
+
                     <div class="activity-meta">
-                        <span id="activity-duration">Duration</span>
+                        <span id="activity-duration">2 min</span>
                     </div>
                 </div>
 
                 <div class="actions-container">
-                    <!-- Row 1: Primary Action -->
-                    <div class="action-row main">
-                        <button id="btn-accept" class="primary-btn full-width">⚡ Accept Task</button>
-                    </div>
+                    <button id="btn-accept" class="primary-btn full-width">⚡ Accept Task</button>
 
-                    <!-- Row 2: Secondary Actions -->
-                    <div class="action-row secondary">
+                    <div class="secondary-actions">
                         <button id="btn-reroll" class="secondary-btn">🔄 Roll</button>
-                        <button id="btn-roll-japan-activity" class="secondary-btn japan-accent-btn">🇯🇵 もう一度</button>
+                        <button id="btn-roll-japan-activity" class="secondary-btn japan-btn">🇯🇵 JP Mode</button>
                         <button id="btn-nottoday" class="secondary-btn">🌧️ Skip</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Upload View (Active/Done) -->
             <section id="view-upload" class="hidden">
                 <div class="upload-card">
-                    <div class="upload-reminder">
-                        <span class="reminder-label">Current Mission:</span>
-                        <p id="upload-activity-text" class="reminder-text">Activity instruction here...</p>
+                    <div class="upload-header">
+                        <span class="reminder-label">Current Mission</span>
+                        <p id="upload-activity-text" class="reminder-text">...</p>
                     </div>
 
-                    <h3>Did you do it?</h3>
-                    <p class="upload-hint">You can add a note or photo to your log.</p>
-
-                    <textarea id="upload-text" placeholder="Write something (optional)..." rows="3"></textarea>
+                    <textarea id="upload-text" placeholder="Add a note (optional)..."></textarea>
 
                     <div class="file-upload-wrapper">
-                        <label for="upload-file" class="file-label">📷 Choose image</label>
+                        <label for="upload-file" class="file-label">📷 Photo</label>
                         <input type="file" id="upload-file" accept="image/*" />
-                        <span id="file-name" class="file-name">No file selected</span>
+                        <span id="file-name" class="file-name"></span>
                     </div>
 
                     <div class="upload-actions">
-                        <button id="btn-save" class="secondary-btn">💾 Finish & Save</button>
-                        <button id="btn-cancel-task" class="secondary-btn small-btn">❌ Cancel Task</button>
+                        <button id="btn-save" class="primary-btn">💾 Finish</button>
+                        <button id="btn-cancel-task" class="text-btn">Cancel</button>
                     </div>
                 </div>
             </section>
 
-            <!-- Feedback Message -->
             <div id="feedback-message" class="feedback hidden"></div>
+
+            <section id="calendar-section">
+                <h3 class="section-title">History</h3>
+                <div id="calendar-grid"></div>
+                <div id="log-list"></div>
+            </section>
         </main>
 
-        <!-- Calendar Section -->
-        <section id="calendar-section">
-            <h2 class="calendar-title">Your Activity Log</h2>
-            <div id="calendar-grid">
-                <!-- Entries will be rendered here -->
-                <p class="calendar-empty">Sign in to see your history.</p>
-            </div>
-
-            <!-- List View Container -->
-            <div id="log-list" class="log-list-container">
-                <!-- List entries injected here -->
-            </div>
-        </section>
-
-        <!-- iOS Install Instruction Banner -->
-        <div id="ios-install-banner" class="ios-install-banner hidden">
-            <div class="ios-banner-content">
-                <p>Install this app on your iPhone: tap <img
-                        src="https://upload.wikimedia.org/wikipedia/commons/4/42/Sf_square_and_arrow_up_symbol.svg"
-                        class="share-icon" alt="Share"> then "Add to Home Screen" <span class="plus-icon">+</span></p>
-                <button id="close-ios-banner" class="close-banner">×</button>
-            </div>
-        </div>
-        <!-- Detail Modal (Hidden by default) -->
         <div id="day-modal" class="day-details-modal hidden">
             <div class="modal-content">
                 <button class="modal-close" id="close-modal">&times;</button>
-                <div id="modal-body">
-                    <!-- Content injected by JS -->
-                </div>
+                <div id="modal-body"></div>
             </div>
         </div>
     </div>
-
     <script type="module" src="/src/main.js"></script>
 </body>
 

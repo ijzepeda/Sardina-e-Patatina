@@ -62,6 +62,12 @@ async function init() {
             userDisplay.textContent = " - " + (user.displayName || user.email);
             userDisplay.classList.remove('hidden');
 
+            // Get list of tasks completed
+            const logs = await getUserLogs(user, 100);
+            const completedCount = logs.filter(l => l.status === 'DONE').length;
+            document.getElementById('escamas-count').textContent = completedCount;
+
+
             // Check for pending task
             const pending = await getPendingTask(user);
             if (pending) {
