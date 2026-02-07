@@ -334,22 +334,24 @@ async function loadLogList(user) {
     }
 
     logListContainer.innerHTML = logs.map(log => {
-        const date = log.timestamp?.toDate?.()
-            ? log.timestamp.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        const dateObj = log.timestamp?.toDate?.() ? log.timestamp.toDate() : null;
+
+        const date = dateObj
+            ? dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
             : 'Recently';
+
+        const isoDate = dateObj ? dateObj.toISOString().split('T')[0] : ''; // YYYY-MM-DD
 
         const statusClass = log.status === 'DONE' ? 'done' : 'nottoday';
         const label = log.status === 'DONE' ? '✓' : '☁️';
-
         const note = log.note ? `"${log.note}"` : '';
 
+        // If no date (legacy data?), don't make it clickable or just pass empty
+        const clickAttr = isoDate ? `onclick="openDayModal('${isoDate}')" style="cursor: pointer;"` : '';
+
         return `
-            
-             <div class="calendar-entry" onclick="openDayModal('${log.timestamp?.toDate ? log.timestamp.toDate().toISOString().split("T")[0] : ""}')" style="cursor: pointer;">
-                
-           
-             
-             <div class="entry-content">
+            <div class="calendar-entry" ${clickAttr}>
+                 <div class="entry-content">
                     <div>
                         <span class="entry-date">${date}</span>
                         <span class="entry-type"> • ${log.activityType}</span>
