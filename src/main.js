@@ -13,7 +13,7 @@ import {
 
 // DOM Elements
 const authBtn = document.getElementById('auth-btn');
-const userDisplay = document.getElementById('user-display');
+// const userDisplay = document.getElementById('user-display');
 const affirmationDisplay = document.getElementById('affirmation-display');
 
 const viewHome = document.getElementById('view-home');
@@ -59,8 +59,9 @@ async function init() {
     initAuth(async (user) => {
         if (user) {
             authBtn.textContent = "Sign Out ";
+
             // userDisplay.textContent = " - " + (user.displayName || user.email);
-            userDisplay.classList.remove('hidden');
+            // userDisplay.classList.remove('hidden');
 
             // Get list of tasks completed
             const logs = await getUserLogs(user, 100);
@@ -95,7 +96,7 @@ async function init() {
             await loadLogList(user);
         } else {
             authBtn.textContent = "Sign In";
-            userDisplay.classList.add('hidden');
+            // userDisplay.classList.add('hidden');
             calendarGrid.innerHTML = '<p class="calendar-empty">Sign in to see your history.</p>';
             logListContainer.innerHTML = '';
 
